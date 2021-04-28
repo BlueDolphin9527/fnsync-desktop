@@ -41,6 +41,7 @@ jobs:
           # wails build
           export PATH="$GOPATH/bin:$PATH"
           go get github.com/wailsapp/wails/v2/cmd/wails
+          go mod tidy
           go mod vendor
           wails build -package -production -ldflags "-w -s -X main.Version=$VERSION -X main.BuildDate=$BUILDDATE -X main.Commit=$COMMIT -X main.Mode=prod"
 
