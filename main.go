@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	// auto config log output format
@@ -29,6 +30,7 @@ var (
 )
 
 func main() {
+	fmt.Printf("Starting %s version: %s\n", AppName, Version+"@"+BuildDate+"@"+Mode)
 	app.Init(AppName, Version, Commit, BuildDate, Mode)
 
 	runApp := NewApp()
