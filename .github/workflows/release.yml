@@ -33,19 +33,20 @@ jobs:
       # step 2: generate build files
       - name: Generate build files
         env:
-            APP_NAME: ${{ env.APP_NAME }}
-            VERSION: ${{ env.VERSION }}
-            BUILDDATE: ${{ env.BUILDDATE }}
-            COMMIT: ${{ env.COMMIT }}
+          APP_NAME: ${{ env.APP_NAME }}
+          VERSION: ${{ env.VERSION }}
+          BUILDDATE: ${{ env.BUILDDATE }}
+          COMMIT: ${{ env.COMMIT }}
         run: |
-            # wails build
-            export PATH="$GOPATH/bin:$PATH"
-            go get github.com/wailsapp/wails/v2/cmd/wails
-            wails build -package -production -ldflags "-w -s -X main.Version=$VERSION -X main.BuildDate=$BUILDDATE -X main.Commit=$COMMIT -X main.Mode=prod"
-            
+          # wails build
+          export PATH="$GOPATH/bin:$PATH"
+          go get github.com/wailsapp/wails/v2/cmd/wails
+          go mod vendor
+          wails build -package -production -ldflags "-w -s -X main.Version=$VERSION -X main.BuildDate=$BUILDDATE -X main.Commit=$COMMIT -X main.Mode=prod"
+
       # step 3: compress build files
       - name: Compress build files
-        run: cd ./build && for i in *; do tar -czf $i.tar.gz $i; done && cd ..
+        run: cd ./build/darwin/desktop && for i in *; do tar -czf $i.tar.gz $i; done && cd ..
 
       # step 4: upload build-artifacts
       - name: Upload build-artifacts
