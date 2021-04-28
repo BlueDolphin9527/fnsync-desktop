@@ -1,0 +1,13 @@
+{
+    "name": "FnSync",
+    "outputfilename": "FnSync",
+    "author": {
+        "name": "cxfksword",
+        "email": "cxfksword@gmail.com"
+    },
+    "html": "frontend/dist/index.html",
+    "js": "frontend/dist/bundle.js",
+    "css": "frontend/dist/bundle.css",
+    "frontend:build": "npm run build",
+    "frontend:install": "npm install"
+}

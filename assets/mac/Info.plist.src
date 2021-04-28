@@ -1,0 +1,25 @@
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+	<key>CFBundlePackageType</key><string>APPL</string>
+	<key>CFBundleName</key><string>fnsync</string>
+	<key>CFBundleExecutable</key><string>fnsync</string>
+	<key>CFBundleIdentifier</key><string>com.fnsync.app</string>
+	<key>CFBundleVersion</key><string>0.0.0</string>
+	<key>CFBundleURLTypes</key>
+    	<array>
+    		<dict>
+    			<key>CFBundleTypeRole</key>
+    			<string>Viewer</string>
+    			<key>CFBundleURLSchemes</key>
+    			<array>
+    				<string>fnsync</string>
+    			</array>
+    		</dict>
+    	</array>
+	<key>CFBundleGetInfoString</key><string>Unofficial fnsync desktop app for MacOS (https://github.com/cxfksword/fnsync-desktop)</string>
+	<key>CFBundleShortVersionString</key><string>0.0.0</string>
+	<key>CFBundleIconFile</key><string>iconfile</string>
+	<key>NSHighResolutionCapable</key><string>true</string>
+	<key>LSMinimumSystemVersion</key><string>10.13.0</string>
+	<key>NSHumanReadableCopyright</key><string></string>
+</dict></plist>
