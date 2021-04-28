@@ -21,6 +21,9 @@ jobs:
       # step 1: checkout repository code
       - name: Checkout the repository
         uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go_version }}
 
       - run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
       - run: echo "BUILDDATE=$(date '+%F-%T')" >> $GITHUB_ENV
@@ -36,6 +39,10 @@ jobs:
             COMMIT: ${{ env.COMMIT }}
         run: |
             # wails build
+            echo $GOPATH
+            export PATH="$GOPATH/bin:$PATH"
+            go version
+            go get -u github.com/wailsapp/wails/cmd/wails
             wails build -package -production -ldflags "-w -s -X main.Version=$VERSION -X main.BuildDate=$BUILDDATE -X main.Commit=$COMMIT -X main.Mode=prod"
             
       # step 3: compress build files
