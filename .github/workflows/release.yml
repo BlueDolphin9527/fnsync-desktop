@@ -1,0 +1,51 @@
+# workflow name
+name: release
+
+# on events
+on:
+  release:
+    types:
+      - created
+
+# jobs
+jobs:
+  # generate build cross-platform build files
+  release:
+    name: Generate cross-platform builds
+    strategy:
+      matrix:
+        go_version:
+          - 1.16.x
+    runs-on: macos-latest
+    steps:
+      # step 1: checkout repository code
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+
+      - run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+      - run: echo "BUILDDATE=$(date '+%F-%T')" >> $GITHUB_ENV
+      - run: echo "COMMIT=$(git rev-parse --verify HEAD)" >> $GITHUB_ENV
+      - run: echo "APP_NAME=FnSync" >> $GITHUB_ENV
+
+      # step 2: generate build files
+      - name: Generate build files
+        env:
+            APP_NAME: ${{ env.APP_NAME }}
+            VERSION: ${{ env.VERSION }}
+            BUILDDATE: ${{ env.BUILDDATE }}
+            COMMIT: ${{ env.COMMIT }}
+        run: |
+            # wails build
+            wails build -package -production -ldflags "-w -s -X main.Version=$VERSION -X main.BuildDate=$BUILDDATE -X main.Commit=$COMMIT -X main.Mode=prod"
+            
+      # step 3: compress build files
+      - name: Compress build files
+        run: cd ./build && for i in *; do tar -czf $i.tar.gz $i; done && cd ..
+
+      # step 4: upload build-artifacts
+      - name: Upload build-artifacts
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: "./build/*.tar.gz"
