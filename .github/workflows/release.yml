@@ -50,9 +50,10 @@ jobs:
         run: cd ./build/darwin/desktop && for i in *; do tar -czf $i.tar.gz $i; done && cd ..
 
       # step 4: upload build-artifacts
-      - name: Upload build-artifacts
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
         with:
-          args: "./build/*.tar.gz"
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./build/darwin/desktop/*.tar.gz
+          file_glob: true
+          tag: ${{ github.ref }}
