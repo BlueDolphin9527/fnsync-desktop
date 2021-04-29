@@ -114,7 +114,10 @@ func (h *Handler) UpdateDevice() {
 }
 
 func (h *Handler) StartRecieveEventLoop() {
-	defer func() { log.Info().Msgf("Quit RecieveEventLoop... [%s](%s)", h.device.Name, h.device.Id) }()
+	defer func() {
+		log.Warn().Msgf("Quit RecieveEventLoop... [%s](%s)", h.device.Name, h.device.Id)
+		h.NotifyStop()
+	}()
 	log.Info().Msgf("Start RecieveEventLoop... [%s](%s)", h.device.Name, h.device.Id)
 
 	// set no timeout
@@ -153,7 +156,6 @@ func (h *Handler) StartRecieveEventLoop() {
 			}
 		case MSG_TYPE_DISCONNECT_BY_PEER:
 			log.Info().Msgf("Quit by client. [%s](%s)", h.device.Name, h.device.Id)
-			h.NotifyStop()
 			return
 		case MSG_TYPE_LOCK_SCREEN:
 		case MSG_TYPE_HELLO:
@@ -164,7 +166,7 @@ func (h *Handler) StartRecieveEventLoop() {
 }
 
 func (h *Handler) StartSendEventLoop() {
-	defer func() { log.Info().Msgf("Quit SendEventLoop... [%s](%s)", h.device.Name, h.device.Id) }()
+	defer func() { log.Warn().Msgf("Quit SendEventLoop... [%s](%s)", h.device.Name, h.device.Id) }()
 	log.Info().Msgf("Start SendEventLoop... [%s](%s)", h.device.Name, h.device.Id)
 
 	for {
@@ -338,6 +340,7 @@ func (h *Handler) close() {
 	h.device.Conn.Close()
 	h.device.IsAlive = false
 	UIMsgHandler.Send(entity.UIUpdateStatusMsg{})
+	log.Warn().Msgf("Connection close: %s -> %s", h.device.Conn.RemoteAddr(), h.device.Conn.LocalAddr())
 }
 
 func (h *Handler) waitToStop() {
