@@ -10,7 +10,7 @@ type UINotifyMsg struct {
 	Message string
 }
 
-func (ui *UINotifyMsg) Execute() {
+func (ui UINotifyMsg) Execute() {
 	err := beeep.Notify(ui.Title, ui.Message, "../assets/appicon.png")
 	if err != nil {
 		log.Error().Err(err).Msg("")

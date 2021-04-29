@@ -7,6 +7,7 @@ import (
 
 	"github.com/cxfksword/fnsync-desktop/client"
 	"github.com/cxfksword/fnsync-desktop/config"
+	"github.com/cxfksword/fnsync-desktop/entity"
 	"github.com/cxfksword/fnsync-desktop/msg"
 	"github.com/cxfksword/fnsync-desktop/utils"
 	"github.com/rs/zerolog/log"
@@ -22,6 +23,7 @@ type App struct {
 	runtime *wails.Runtime
 
 	startsAtLoginMenu *menu.MenuItem
+	trayMenu          *menu.TrayMenu
 }
 
 // NewApp creates a new Basic application struct
@@ -49,7 +51,7 @@ func (app *App) startup(runtime *wails.Runtime) {
 	}
 	app.initMenus(runtime)
 
-	go msg.UIMsgHandler.StartMsgLoop()
+	go app.startUIMsgLoop()
 	go client.SleepNotifier.StartSubscribe()
 	// start listen client connect
 	go client.Listener.StartAccept()
@@ -58,18 +60,21 @@ func (app *App) startup(runtime *wails.Runtime) {
 
 func (app *App) initMenus(runtime *wails.Runtime) {
 	var items []*menu.MenuItem
+	trayImage := "icon"
 
 	items = append(items, &menu.MenuItem{
 		Type:     menu.TextType,
 		Label:    "已连接的设备:",
 		Disabled: true,
 	})
-	if len(config.App.Devices) > 0 {
-		for _, v := range config.App.Devices {
+	aliveDevices := client.Listener.GetAliveDevices()
+	if len(aliveDevices) > 0 {
+		for _, v := range aliveDevices {
 			items = append(items, &menu.MenuItem{
 				Type:  menu.TextType,
 				Label: v.Name,
 			})
+			trayImage = "icon1"
 		}
 	} else {
 		items = append(items, &menu.MenuItem{
@@ -105,10 +110,18 @@ func (app *App) initMenus(runtime *wails.Runtime) {
 	})
 
 	m := &menu.Menu{Items: items}
-	runtime.Menu.SetTrayMenu(&menu.TrayMenu{
-		Image: "icon",
+	app.trayMenu = &menu.TrayMenu{
+		Image: trayImage,
 		Menu:  m,
-	})
+	}
+	runtime.Menu.SetTrayMenu(app.trayMenu)
+}
+
+// refreshMenus refreshes all tray menus to ensure they
+// are in sync with the data, EG: checkbox sync
+func (app *App) refreshMenus() {
+	app.runtime.Menu.DeleteTrayMenu(app.trayMenu)
+	app.initMenus(app.runtime)
 }
 
 func (app *App) onQuitMenuClicked(_ *menu.CallbackData) {
@@ -153,4 +166,19 @@ func (app *App) GenerateQRCode() string {
 	helloJson := utils.ToJSON(helloMsg)
 	png, _ := qrcode.Encode(string(helloJson), qrcode.Medium, -10)
 	return fmt.Sprintf("data:image/png;base64,%s", base64.StdEncoding.EncodeToString(png))
+}
+
+func (app *App) startUIMsgLoop() {
+	msgCh := msg.UIMsgHandler.Start()
+	for {
+		msg := <-msgCh
+
+		switch v := msg.(type) {
+		case entity.UIUpdateStatusMsg:
+			app.refreshMenus()
+		default:
+			v.Execute()
+		}
+
+	}
 }

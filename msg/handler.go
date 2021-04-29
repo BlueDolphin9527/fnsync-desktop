@@ -94,22 +94,28 @@ func (h *Handler) Process() {
 		return
 	}
 
-	UIMsgHandler.Send(&entity.UINotifyMsg{
-		Title:   app.Name,
-		Message: fmt.Sprintf("%s已连接", h.device.Name),
-	})
+	go h.UpdateDevice()
 	go h.StartSendEventLoop()
 	go h.StartRecieveEventLoop()
 	h.waitToStop()
 }
 
-func (h *Handler) StartRecieveEventLoop() {
-	defer func() { log.Info().Msgf("Quit RecieveEventLoop... [%s](%s)", h.device.Name, h.device.Id) }()
-	log.Info().Msgf("Start RecieveEventLoop... [%s](%s)", h.device.Name, h.device.Id)
+func (h *Handler) UpdateDevice() {
 	// save connected device
 	h.device.IsAlive = true
 	h.device.LastIp = h.device.Conn.RemoteAddr().(*net.TCPAddr).IP.String()
 	config.App.SaveDevice(h.device)
+
+	UIMsgHandler.Send(entity.UINotifyMsg{
+		Title:   app.Name,
+		Message: fmt.Sprintf("%s已连接", h.device.Name),
+	})
+	UIMsgHandler.Send(entity.UIUpdateStatusMsg{})
+}
+
+func (h *Handler) StartRecieveEventLoop() {
+	defer func() { log.Info().Msgf("Quit RecieveEventLoop... [%s](%s)", h.device.Name, h.device.Id) }()
+	log.Info().Msgf("Start RecieveEventLoop... [%s](%s)", h.device.Name, h.device.Id)
 
 	// set no timeout
 	h.setReadDeadline(time.Time{})
@@ -317,6 +323,10 @@ func (h *Handler) IsAlive() bool {
 	return h.device.IsAlive
 }
 
+func (h *Handler) GetDevice() entity.Device {
+	return h.device
+}
+
 func (h *Handler) GetCode() string {
 	return h.device.Code
 }
@@ -327,6 +337,7 @@ func (h *Handler) close() {
 	h.sendTerminateMsg()
 	h.device.Conn.Close()
 	h.device.IsAlive = false
+	UIMsgHandler.Send(entity.UIUpdateStatusMsg{})
 }
 
 func (h *Handler) waitToStop() {

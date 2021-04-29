@@ -10,12 +10,8 @@ type uiMsgHandler struct {
 	uiMsgCh chan entity.UIMsg
 }
 
-func (ui *uiMsgHandler) StartMsgLoop() {
-	for {
-		msg := <-ui.uiMsgCh
-
-		msg.Execute()
-	}
+func (ui *uiMsgHandler) Start() chan entity.UIMsg {
+	return ui.uiMsgCh
 }
 
 func (ui *uiMsgHandler) Send(msg entity.UIMsg) {

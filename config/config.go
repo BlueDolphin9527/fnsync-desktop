@@ -16,6 +16,7 @@ import (
 var App *appConfig = newAppConfig()
 var saveChan chan bool = make(chan bool, 10)
 var saveDeviceChan chan entity.Device = make(chan entity.Device, 10)
+var deleteDeviceChan chan entity.Device = make(chan entity.Device, 10)
 
 type appConfig struct {
 	MachineId string
@@ -92,6 +93,10 @@ func (a *appConfig) SaveDevice(device entity.Device) {
 	saveDeviceChan <- device
 }
 
+func (a *appConfig) DeleteDevice(device entity.Device) {
+	deleteDeviceChan <- device
+}
+
 func (a *appConfig) startSaveRunner() {
 	defer func() { log.Info().Msgf("Quit conifig SaveRunner.") }()
 	log.Info().Msgf("Start conifig SaveRunner...")
@@ -117,11 +122,13 @@ func (a *appConfig) startSaveRunner() {
 		case device := <-saveDeviceChan:
 			if v, found := a.Devices[device.Id]; found {
 				v.LastIp = device.LastIp
+				v.IsAlive = device.IsAlive
 			} else {
 				a.Devices[device.Id] = device
 			}
 
 			a.Save()
+
 		}
 	}
 }
