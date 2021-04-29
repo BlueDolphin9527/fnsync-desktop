@@ -50,6 +50,7 @@ func (app *App) startup(runtime *wails.Runtime) {
 	app.initMenus(runtime)
 
 	go msg.UIMsgHandler.StartMsgLoop()
+	go client.SleepNotifier.StartSubscribe()
 	// start listen client connect
 	go client.Listener.StartAccept()
 

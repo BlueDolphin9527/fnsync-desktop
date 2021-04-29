@@ -10,6 +10,15 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog"
+	"github.com/shiena/ansicolor"
+)
+
+const (
+	white  = "\033[37m"
+	yellow = "\033[33m"
+	red    = "\033[31m"
+	gray   = "\033[90m"
+	reset  = "\033[0m"
 )
 
 type ConsoleWriter struct {
@@ -17,7 +26,7 @@ type ConsoleWriter struct {
 }
 
 func NewConsoleWriter(out io.Writer) ConsoleWriter {
-	return ConsoleWriter{l: out}
+	return ConsoleWriter{l: ansicolor.NewAnsiColorWriter(out)}
 }
 
 func (w ConsoleWriter) Write(p []byte) (n int, err error) {
@@ -38,8 +47,11 @@ func (w ConsoleWriter) Write(p []byte) (n int, err error) {
 	if evt[zerolog.ErrorFieldName] != nil {
 		errInfo = evt[zerolog.ErrorFieldName]
 	}
-	level := fmt.Sprintf("[%s]", strings.ToUpper(evt[zerolog.LevelFieldName].(string)))
-	newformat := fmt.Sprintf("%-24s %-8s %-16s> %s%s\n", evt[zerolog.TimestampFieldName], level, w.formatCaller(evt[zerolog.CallerFieldName]), msgInfo, errInfo)
+	level := strings.ToUpper(evt[zerolog.LevelFieldName].(string))
+	newformat := fmt.Sprintf("%-24s %-10s %-25s %s%s\n", evt[zerolog.TimestampFieldName], w.formatLevel(level), w.formatCaller(evt[zerolog.CallerFieldName]), msgInfo, errInfo)
+	if level == "TRACE" || level == "DEBUG" {
+		newformat = fmt.Sprintf("%s%-24s %-10s %-25s %s%s%s\n", gray, evt[zerolog.TimestampFieldName], w.formatLevel(level), w.formatCaller(evt[zerolog.CallerFieldName]), msgInfo, errInfo, reset)
+	}
 	_, err = w.l.Write([]byte(newformat))
 
 	return len(p), err
@@ -57,5 +69,18 @@ func (w ConsoleWriter) formatCaller(i interface{}) string {
 			}
 		}
 	}
-	return c
+	return fmt.Sprintf("%s>", c)
+}
+
+func (w ConsoleWriter) formatLevel(level string) string {
+	switch level {
+	case "WARN":
+		return fmt.Sprintf("%s[%s]%s", yellow, level, reset)
+	case "ERROR":
+		fallthrough
+	case "FATAL":
+		return fmt.Sprintf("%s[%s]%s", red, level, reset)
+	default:
+		return fmt.Sprintf("[%s]", level)
+	}
 }

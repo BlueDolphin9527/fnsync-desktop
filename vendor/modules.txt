@@ -60,6 +60,9 @@ github.com/nu7hatch/gouuid
 github.com/pelletier/go-toml
 # github.com/pkg/errors v0.9.1
 github.com/pkg/errors
+# github.com/prashantgupta24/mac-sleep-notifier v1.0.1
+## explicit
+github.com/prashantgupta24/mac-sleep-notifier/notifier
 # github.com/rs/zerolog v1.21.0
 ## explicit
 github.com/rs/zerolog
@@ -69,6 +72,9 @@ github.com/rs/zerolog/log
 # github.com/sevlyar/go-daemon v0.1.5
 ## explicit
 github.com/sevlyar/go-daemon
+# github.com/shiena/ansicolor v0.0.0-20200904210342-c7312218db18
+## explicit
+github.com/shiena/ansicolor
 # github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 ## explicit
 github.com/skip2/go-qrcode

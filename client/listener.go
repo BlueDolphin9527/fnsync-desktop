@@ -5,7 +5,6 @@ import (
 	"net"
 	"os"
 	"sync"
-	"time"
 
 	"github.com/cxfksword/fnsync-desktop/clipboard"
 	"github.com/cxfksword/fnsync-desktop/config"
@@ -39,7 +38,7 @@ func (l *listener) StartAccept() {
 	// Close the listener when the application closes.
 	defer serv.Close()
 
-	go l.startAutoConnectDevices()
+	go StartHandshake()
 	go l.startClipboardChangeWatch()
 	for {
 		// Listen for an incoming connection.
@@ -59,35 +58,6 @@ func (l *listener) StartAccept() {
 		handler := msg.NewHandler(c)
 		l.connHandlers.Store(uuid.NewString(), handler)
 		go handler.Process()
-	}
-}
-
-func (l *listener) startAutoConnectDevices() {
-	defer func() { log.Info().Msgf("Quit autoconnect handshake.") }()
-	if !config.App.ConnectOnStartup {
-		return
-	}
-	if len(config.App.Devices) <= 0 {
-		return
-	}
-
-	targets := []entity.Device{}
-	for _, v := range config.App.Devices {
-		targets = append(targets, v)
-	}
-
-	log.Info().Msgf("Start send autoconnect handshake...")
-
-	timeout := AUTO_CONNECT_TIMEOUT_MILLS
-	portIncrement := 0
-	for timeout > 0 && len(targets) > 0 {
-
-		handShake.BroadcastLocalNetwork(targets, portIncrement)
-		//handShake.Send(targets, portIncrement)
-
-		timeout -= 2500
-		portIncrement++
-		time.Sleep(2500 * time.Millisecond)
 	}
 }
 
