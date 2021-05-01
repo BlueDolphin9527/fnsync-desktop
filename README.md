@@ -19,6 +19,9 @@ https://gitee.com/holmium/fnsync/releases
 * 同步剪贴板文本到手机
 * 发送文本到指定同步手机 
 
+## prerequisite
+* Go 1.6+
+* Xcode 12
 ## how to build
 
 ```
