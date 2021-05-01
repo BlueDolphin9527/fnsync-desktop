@@ -123,9 +123,14 @@ func (app *App) initMenus(runtime *wails.Runtime) {
 	})
 
 	m := &menu.Menu{Items: items}
-	app.trayMenu = &menu.TrayMenu{
-		Image: trayImage,
-		Menu:  m,
+	if app.trayMenu == nil {
+		app.trayMenu = &menu.TrayMenu{
+			Image: trayImage,
+			Menu:  m,
+		}
+	} else {
+		app.trayMenu.Image = trayImage
+		app.trayMenu.Menu = m
 	}
 	runtime.Menu.SetTrayMenu(app.trayMenu)
 }
@@ -133,7 +138,6 @@ func (app *App) initMenus(runtime *wails.Runtime) {
 // refreshMenus refreshes all tray menus to ensure they
 // are in sync with the data, EG: checkbox sync
 func (app *App) refreshMenus() {
-	app.runtime.Menu.DeleteTrayMenu(app.trayMenu)
 	app.initMenus(app.runtime)
 }
 

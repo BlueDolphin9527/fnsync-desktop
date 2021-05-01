@@ -14,7 +14,6 @@ import (
 )
 
 const (
-	white  = "\033[37m"
 	yellow = "\033[33m"
 	red    = "\033[31m"
 	gray   = "\033[90m"
