@@ -21,6 +21,7 @@ https://gitee.com/holmium/fnsync/releases
 
 ## prerequisite
 * Go 1.6+
+* Node.js 12+
 * Xcode 12
 ## how to build
 

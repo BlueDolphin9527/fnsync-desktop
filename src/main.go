@@ -46,6 +46,7 @@ func main() {
 			WebviewIsTransparent:          true,
 			WindowBackgroundIsTranslucent: true,
 			TitleBar:                      mac.TitleBarDefault(),
+			ActivationPolicy:              mac.NSApplicationActivationPolicyAccessory,
 			Menu:                          menu.DefaultMacMenu(),
 		},
 		DevTools:      false,
