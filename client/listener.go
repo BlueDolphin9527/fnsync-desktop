@@ -57,9 +57,9 @@ func (l *listener) StartAccept() {
 			Conn:                conn,
 		}
 
+		// TODO: 同一设备切换wifi导致IP变更后处理（同一设备有两个连接）
 		handler := msg.NewHandler(c)
-		l.connHandlers.Store(uuid.NewString(), handler)
-		go handler.Process()
+		go handler.Process(&l.connHandlers)
 	}
 }
 
@@ -116,6 +116,20 @@ func (l *listener) RefreshCode() {
 
 func (l *listener) GetCode() string {
 	return l.code
+}
+
+func (l *listener) SendMeg(code string, text string) (err error) {
+	l.connHandlers.Range(func(key, value interface{}) bool {
+		v := value.(*msg.Handler)
+		if v.IsAlive() && v.GetCode() == code {
+			v.SendTextMsg(text, msg.MSG_TYPE_NEW_CLIPBOARD_DATA)
+			return false
+		}
+		return true
+	})
+
+	err = nil
+	return
 }
 
 func (l *listener) Terminate() {

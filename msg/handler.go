@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/cxfksword/fnsync-desktop/app"
@@ -33,7 +34,7 @@ func NewHandler(client entity.Device) *Handler {
 	}
 }
 
-func (h *Handler) Process() {
+func (h *Handler) Process(connHandlers *sync.Map) {
 	defer h.close()
 
 	h.setReadDeadline(time.Now().Add(5 * time.Second))
@@ -94,6 +95,16 @@ func (h *Handler) Process() {
 		return
 	}
 
+	// 检查是否存在该设备的旧连接（设备连接丢失，进行了重连导致）
+	handlerKey := config.App.MachineId + h.device.Id
+	oldHandler, loaded := connHandlers.LoadAndDelete(handlerKey)
+	if loaded {
+		log.Warn().Msgf("存在旧连接，将关闭退出. [%s](%s)", h.device.Name, h.device.Id)
+		// 关闭旧连接
+		oldHandler.(*Handler).NotifyStop()
+	}
+	connHandlers.Store(handlerKey, h)
+
 	go h.UpdateDevice()
 	go h.StartSendEventLoop()
 	go h.StartRecieveEventLoop()
@@ -106,6 +117,9 @@ func (h *Handler) UpdateDevice() {
 	h.device.LastIp = h.device.Conn.RemoteAddr().(*net.TCPAddr).IP.String()
 	config.App.SaveDevice(h.device)
 
+	UIMsgHandler.Send(entity.UIScanConnectedMsg{
+		Code: h.device.Code,
+	})
 	UIMsgHandler.Send(entity.UINotifyMsg{
 		Title:   app.Name,
 		Message: fmt.Sprintf("%s已连接", h.device.Name),
@@ -148,9 +162,6 @@ func (h *Handler) StartRecieveEventLoop() {
 
 		switch msg.MsgType {
 		case MSG_TYPE_TEXT_CAST:
-			if !config.App.ClipboardSync {
-				continue
-			}
 			if err := clipboard.Set(msg.Text); err != nil {
 				log.Error().Err(err).Msg("")
 			}

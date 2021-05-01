@@ -13,12 +13,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-var App *appConfig = newAppConfig()
+var App *AppConfig = newAppConfig()
 var saveChan chan bool = make(chan bool, 10)
 var saveDeviceChan chan entity.Device = make(chan entity.Device, 10)
 var deleteDeviceChan chan entity.Device = make(chan entity.Device, 10)
 
-type appConfig struct {
+type AppConfig struct {
 	MachineId string
 
 	ConnectOnStartup   bool
@@ -34,8 +34,8 @@ type appConfig struct {
 	Log string
 }
 
-func newAppConfig() *appConfig {
-	defaultConf := appConfig{
+func newAppConfig() *AppConfig {
+	defaultConf := AppConfig{
 		MachineId:          uuid.NewString(),
 		ConnectOnStartup:   true,
 		HideOnStartup:      true,
@@ -85,19 +85,19 @@ func configPath() string {
 	return path
 }
 
-func (a *appConfig) Save() {
+func (a *AppConfig) Save() {
 	saveChan <- true
 }
 
-func (a *appConfig) SaveDevice(device entity.Device) {
+func (a *AppConfig) SaveDevice(device entity.Device) {
 	saveDeviceChan <- device
 }
 
-func (a *appConfig) DeleteDevice(device entity.Device) {
+func (a *AppConfig) DeleteDevice(device entity.Device) {
 	deleteDeviceChan <- device
 }
 
-func (a *appConfig) startSaveRunner() {
+func (a *AppConfig) startSaveRunner() {
 	defer func() { log.Info().Msgf("Quit conifig SaveRunner.") }()
 	log.Info().Msgf("Start conifig SaveRunner...")
 
@@ -133,7 +133,7 @@ func (a *appConfig) startSaveRunner() {
 	}
 }
 
-func (l *appConfig) GetListenPort() int {
+func (l *AppConfig) GetListenPort() int {
 	port, err := strconv.Atoi(l.ListenPort)
 	if err != nil && port > 0 {
 		return port
