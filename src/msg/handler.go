@@ -164,6 +164,11 @@ func (h *Handler) StartRecieveEventLoop() {
 		case MSG_TYPE_TEXT_CAST:
 			if err := clipboard.Set(msg.Text); err != nil {
 				log.Error().Err(err).Msg("")
+			} else {
+				UIMsgHandler.Send(entity.UINotifyMsg{
+					Title:   fmt.Sprintf("%s收到文本", app.Name),
+					Message: msg.Text,
+				})
 			}
 		case MSG_TYPE_DISCONNECT_BY_PEER:
 			log.Info().Msgf("Quit by client. [%s](%s)", h.device.Name, h.device.Id)
