@@ -25,7 +25,6 @@ export default {
     };
   },
   created: function () {
-    console.log("qrcode created");
     this.generateQRCode();
     this.registerEvent();
   },
