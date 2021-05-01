@@ -46,7 +46,7 @@ func main() {
 			WebviewIsTransparent:          true,
 			WindowBackgroundIsTranslucent: true,
 			TitleBar:                      mac.TitleBarDefault(),
-			ActivationPolicy:              mac.NSApplicationActivationPolicyAccessory,
+			ActivationPolicy:              mac.NSApplicationActivationPolicyAccessory, // 不在dock显示图标
 			Menu:                          menu.DefaultMacMenu(),
 		},
 		DevTools:      false,
