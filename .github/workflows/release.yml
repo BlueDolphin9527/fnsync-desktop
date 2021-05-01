@@ -48,7 +48,7 @@ jobs:
 
       # step 3: compress build files
       - name: Compress build files
-        run: cd ./build/darwin/desktop && for i in *; do tar -czf $i.tar.gz $i; done && cd ..
+        run: cd ./src/build/darwin/desktop && for i in *; do tar -czf $i.tar.gz $i; done && cd ..
 
       # step 4: upload build-artifacts
       - name: Upload binaries to release
