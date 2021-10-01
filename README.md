@@ -26,8 +26,10 @@ https://gitee.com/holmium/fnsync/releases
 ## how to build
 
 ```
-go get github.com/wailsapp/wails/v2/cmd/wails
+go get github.com/wailsapp/wails/v2/cmd/wails@v2.0.0-alpha.65
+# for Go 1.7+
+# go install github.com/wailsapp/wails/v2/cmd/wails@v2.0.0-alpha.65  
 cd src
-go mod tidy
+go mod vendor
 wails build
 ```
