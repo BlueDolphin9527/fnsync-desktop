@@ -126,3 +126,23 @@ func StartHandshake() {
 		time.Sleep(2500 * time.Millisecond)
 	}
 }
+
+func StartHandshakeDevice(v entity.Device) {
+	targets := []entity.Device{v}
+	targetIds := []string{v.Id}
+	handshakeMsg := msg.Builder.MakeHandshake(uuid.NewString(), targetIds)
+
+	log.Info().Msgf("Start send autoconnect handshake...")
+
+	timeout := AUTO_CONNECT_TIMEOUT_MILLS
+	portIncrement := 0
+	for timeout > 0 && len(targets) > 0 {
+
+		handShake.Send(handshakeMsg, targets, portIncrement)
+		handShake.BroadcastLocalNetwork(handshakeMsg, portIncrement)
+
+		timeout -= 2500
+		portIncrement++
+		time.Sleep(2500 * time.Millisecond)
+	}
+}

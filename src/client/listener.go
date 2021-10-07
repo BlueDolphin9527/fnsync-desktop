@@ -110,6 +110,18 @@ func (l *listener) GetAliveDevices() []entity.Device {
 	return devices
 }
 
+func (l *listener) GetDevices() []entity.Device {
+	devices := []entity.Device{}
+	l.connHandlers.Range(func(key, value interface{}) bool {
+		v := value.(*msg.Handler)
+		devices = append(devices, v.GetDevice())
+
+		return true
+	})
+
+	return devices
+}
+
 func (l *listener) RefreshCode() {
 	l.code = uuid.NewString()
 }

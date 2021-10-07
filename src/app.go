@@ -66,21 +66,33 @@ func (app *App) initMenus(runtime *wails.Runtime) {
 
 	items = append(items, &menu.MenuItem{
 		Type:     menu.TextType,
-		Label:    "已连接的设备:",
+		Label:    "连接过的设备:",
 		Disabled: true,
 	})
-	aliveDevices := client.Listener.GetAliveDevices()
-	if len(aliveDevices) > 0 {
-		for _, v := range aliveDevices {
-			items = append(items, &menu.MenuItem{
-				Type:  menu.TextType,
-				Label: v.Name,
-				Click: func(data *menu.CallbackData) {
-					app.currentSelectedDevice = &v
-					app.onDeviceMenuClicked(data)
-				},
-			})
-			trayImage = "icon1"
+	devices := client.Listener.GetDevices()
+	if len(devices) > 0 {
+		for _, v := range devices {
+			if v.IsAlive {
+				items = append(items, &menu.MenuItem{
+					Type:  menu.TextType,
+					Label: v.Name,
+					Click: func(data *menu.CallbackData) {
+						app.currentSelectedDevice = &v
+						app.onDeviceMenuClicked(data)
+					},
+				})
+				trayImage = "icon1"
+			} else {
+				items = append(items, &menu.MenuItem{
+					Type:  menu.TextType,
+					Label: fmt.Sprintf("%s (未连接)", v.Name),
+					Click: func(data *menu.CallbackData) {
+						app.currentSelectedDevice = &v
+						app.onTryConnectDeviceMenuClicked(data)
+					},
+				})
+			}
+
 		}
 	} else {
 		items = append(items, &menu.MenuItem{
@@ -164,6 +176,10 @@ func (app *App) onDeviceMenuClicked(data *menu.CallbackData) {
 	app.runtime.Events.Emit("app.device.window.show")
 	app.runtime.Window.SetSize(400, 300)
 	app.runtime.Window.Show()
+}
+
+func (app *App) onTryConnectDeviceMenuClicked(data *menu.CallbackData) {
+	client.StartHandshakeDevice(*app.currentSelectedDevice)
 }
 
 func (app *App) onSettingMenuClicked(_ *menu.CallbackData) {

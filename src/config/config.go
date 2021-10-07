@@ -120,12 +120,7 @@ func (a *AppConfig) startSaveRunner() {
 				}
 			}
 		case device := <-saveDeviceChan:
-			if v, found := a.Devices[device.Id]; found {
-				v.LastIp = device.LastIp
-				v.IsAlive = device.IsAlive
-			} else {
-				a.Devices[device.Id] = device
-			}
+			a.Devices[device.Id] = device
 
 			a.Save()
 

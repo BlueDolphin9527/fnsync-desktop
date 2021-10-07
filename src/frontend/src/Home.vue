@@ -54,7 +54,7 @@ export default {
       if (!window.wails) return;
 
       window.wails.Events.On("app.scan.connected", function (code) {
-        if (code.indexOf($this.rawData.token) >= 0) {
+        if ($this.rawData && code.indexOf($this.rawData.token) >= 0) {
           window.wails.Events.Emit("app.window.close");
         }
       });
